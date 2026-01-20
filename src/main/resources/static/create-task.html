@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Create Task</title>
+
+  <style>
+    body {
+      font-family: system-ui, Arial;
+      margin: 24px;
+      max-width: 720px;
+    }
+
+    /* ---------- Top Bar ---------- */
+    .topbar {
+      display:flex;
+      align-items:center;
+      gap:16px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+
+    .topbar a {
+      text-decoration:none;
+      color:#0066cc;
+    }
+
+    .topbar .spacer {
+      flex: 1;
+    }
+
+    /* ---------- Form ---------- */
+    label {
+      display:block;
+      margin-top: 18px;
+      font-weight: 500;
+    }
+
+    input,
+    textarea,
+    select {
+      width: 100%;
+      padding: 14px 12px;
+      margin-top: 8px;
+      font-size: 14px;
+      line-height: 1.4;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      box-sizing: border-box;
+      background: #fff;
+    }
+
+    textarea {
+      min-height: 110px;
+      resize: vertical;
+    }
+
+    input:focus,
+    textarea:focus,
+    select:focus {
+      outline: none;
+      border-color: #0066cc;
+      box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.12);
+    }
+
+    .row {
+      display:flex;
+      gap: 16px;
+      margin-top: 8px;
+    }
+
+    .row > div {
+      flex: 1;
+    }
+
+    /* ---------- Buttons ---------- */
+    button {
+      padding: 12px 18px;
+      margin-top: 24px;
+      font-size: 14px;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      background: #fff;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background:#f6f6f6;
+    }
+
+    .logoutBtn {
+      margin-top: 0;
+    }
+
+    /* ---------- Result Box ---------- */
+    .resultBox {
+      margin-top: 20px;
+      padding: 14px;
+      border: 1px solid #ddd;
+      border-radius: 12px;
+      background:#fafafa;
+      white-space: pre-wrap;
+    }
+
+    .msgOk {
+      color: #0a7;
+      font-weight: 600;
+    }
+
+    .msgErr {
+      color: #c00;
+      font-weight: 600;
+    }
+  </style>
+</head>
+
+<body>
+
+<!-- ---------- Header ---------- -->
+<div class="topbar">
+  <h1 style="margin:0;">Create Task</h1>
+
+  <a href="/tasks.html">Tasks</a>
+  <a href="/dashboard.html">Dashboard</a>
+
+  <div class="spacer"></div>
+
+  <form action="/logout" method="post" onsubmit="return confirm('Logout now?');">
+    <button class="logoutBtn" type="submit">Logout</button>
+  </form>
+</div>
+
+<!-- ---------- Form ---------- -->
+<form id="taskForm">
+
+  <label>Title
+    <input id="title" required />
+  </label>
+
+  <label>Description
+    <textarea id="description" rows="4"></textarea>
+  </label>
+
+  <div class="row">
+    <div>
+      <label>Date / Time
+        <input id="taskDateTime" type="datetime-local" required />
+      </label>
+    </div>
+    <div>
+      <label>Priority
+        <select id="priority" required>
+          <option value="LOW">LOW</option>
+          <option value="MEDIUM" selected>MEDIUM</option>
+          <option value="HIGH">HIGH</option>
+        </select>
+      </label>
+    </div>
+  </div>
+
+  <label>Assigned User
+    <select id="assignedUserId" required></select>
+  </label>
+
+  <button type="submit">Create Task</button>
+  <button type="button" id="resetBtn">Reset</button>
+
+</form>
+
+<div id="result" class="resultBox">
+  Fill the form and click <b>Create Task</b>.
+</div>
+
+<!-- ---------- Script ---------- -->
+<script>
+  async function fetchJson(url, options = {}) {
+    const res = await fetch(url, options);
+    if (!res.ok) throw new Error(await res.text());
+    return res.json();
+  }
+
+  function toIsoFromDatetimeLocal(value) {
+    return value.length === 16 ? value + ":00" : value;
+  }
+
+  function setDefaultDateTime() {
+    const input = document.getElementById("taskDateTime");
+    const d = new Date();
+    d.setHours(d.getHours() + 1);
+    d.setSeconds(0, 0);
+
+    const pad = n => String(n).padStart(2, "0");
+    input.value =
+      d.getFullYear() + "-" +
+      pad(d.getMonth() + 1) + "-" +
+      pad(d.getDate()) + "T" +
+      pad(d.getHours()) + ":" +
+      pad(d.getMinutes());
+  }
+
+  async function loadUsers() {
+    const users = await fetchJson("/api/users");
+    const sel = document.getElementById("assignedUserId");
+    sel.innerHTML = "";
+
+    const placeholder = document.createElement("option");
+    placeholder.value = "";
+    placeholder.textContent = "-- Select user --";
+    placeholder.disabled = true;
+    placeholder.selected = true;
+    sel.appendChild(placeholder);
+
+    users.forEach(u => {
+      const opt = document.createElement("option");
+      opt.value = u.id;
+      opt.textContent = `${u.username} (${u.role})`;
+      sel.appendChild(opt);
+    });
+  }
+
+  function setResultOk(text) {
+    document.getElementById("result").innerHTML =
+      `<div class="msgOk">${text}</div>`;
+  }
+
+  function setResultErr(text) {
+    document.getElementById("result").innerHTML =
+      `<div class="msgErr">${text}</div>`;
+  }
+
+  document.getElementById("resetBtn").addEventListener("click", () => {
+    document.getElementById("taskForm").reset();
+    setDefaultDateTime();
+    document.getElementById("result").textContent = "Form reset.";
+  });
+
+  document.getElementById("taskForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const assignedVal = document.getElementById("assignedUserId").value;
+    if (!assignedVal) {
+      setResultErr("Please select an assigned user.");
+      return;
+    }
+
+    const payload = {
+      title: document.getElementById("title").value.trim(),
+      description: document.getElementById("description").value.trim(),
+      taskDateTime: toIsoFromDatetimeLocal(document.getElementById("taskDateTime").value),
+      priority: document.getElementById("priority").value,
+      assignedUserId: Number(assignedVal)
+    };
+
+    try {
+      const created = await fetchJson("/api/tasks", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+
+      setResultOk(`Task #${created.id} created successfully (status: ${created.status}).`);
+
+    } catch (err) {
+      setResultErr("Error creating task: " + err.message);
+    }
+  });
+
+  (async function init() {
+    try {
+      await loadUsers();
+      setDefaultDateTime();
+    } catch (e) {
+      document.body.innerHTML = `
+        <h2>You are not logged in</h2>
+        <p>Please <a href="/login.html">login</a> and refresh.</p>
+        <pre>${e.message}</pre>
+      `;
+    }
+  })();
+</script>
+</body>
+</html>

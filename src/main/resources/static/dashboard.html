@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Dashboard</title>
+    <style>
+        body { font-family: system-ui, Arial; margin: 24px; }
+
+        .header {
+          display:flex;
+          align-items:center;
+          gap:12px;
+          flex-wrap: wrap;
+          margin-bottom: 16px;
+        }
+
+        .meBox { color:#333; }
+        .spacer { flex: 1; }
+
+        .btnLink {
+          display:inline-block;
+          padding: 8px 12px;
+          border: 1px solid #ddd;
+          border-radius: 8px;
+          background: #fff;
+          text-decoration:none;
+          color:#0066cc;
+        }
+        .btnLink:hover { background:#f6f6f6; }
+
+        .logoutBtn {
+          padding: 8px 12px;
+          border: 1px solid #ddd;
+          border-radius: 8px;
+          background: #fff;
+          cursor:pointer;
+        }
+        .logoutBtn:hover { background:#f6f6f6; }
+
+        .cards {
+          display:grid;
+          grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+          gap:16px;
+          margin-top:16px;
+        }
+
+        .card {
+          border: 1px solid #ddd;
+          border-radius: 12px;
+          padding: 16px;
+          background: #fafafa;
+        }
+
+        .card a {
+          text-decoration: none;
+          color: inherit;
+          display:block;
+        }
+
+        .cardTitle { color:#444; margin-bottom: 10px; }
+        .count { font-size: 36px; font-weight: 700; line-height: 1; margin-bottom: 8px; }
+        .sub { font-size: 12px; color:#666; }
+
+        .toolbar { display:flex; gap:12px; align-items:center; margin-top: 8px; }
+        .refreshBtn {
+          padding: 8px 12px;
+          border: 1px solid #ddd;
+          border-radius: 8px;
+          background:#fff;
+          cursor:pointer;
+        }
+        .refreshBtn:hover { background:#f6f6f6; }
+    </style>
+</head>
+
+<body>
+
+<div class="header">
+    <h1 style="margin:0;">Dashboard</h1>
+    <div id="meBox" class="meBox">Loading user...</div>
+
+    <div class="spacer"></div>
+    <a class="btnLink" href="/calendar.html">Calendar</a>
+
+    <a class="btnLink" href="/tasks.html">View Tasks</a>
+    <a class="btnLink" href="/create-task.html">Create Task</a>
+
+    <button class="refreshBtn" id="refreshBtn" type="button">Refresh</button>
+
+    <form action="/logout" method="post" style="margin:0;">
+        <button class="logoutBtn" type="submit">Logout</button>
+    </form>
+</div>
+
+<div class="cards">
+    <div class="card">
+        <a href="/tasks.html?status=PENDING">
+            <div class="cardTitle">Pending Tasks</div>
+            <div class="count" id="pendingCount">–</div>
+            <div class="sub">Needs action / approval</div>
+        </a>
+    </div>
+
+    <div class="card">
+        <a href="/tasks.html?status=APPROVED">
+            <div class="cardTitle">Approved Tasks</div>
+            <div class="count" id="approvedCount">–</div>
+            <div class="sub">Approved and in progress</div>
+        </a>
+    </div>
+
+    <div class="card">
+        <a href="/tasks.html?status=REJECTED">
+            <div class="cardTitle">Rejected Tasks</div>
+            <div class="count" id="rejectedCount">–</div>
+            <div class="sub">Rejected tasks</div>
+        </a>
+    </div>
+</div>
+
+<script>
+    async function fetchJson(url) {
+      const r = await fetch(url);
+      if (!r.ok) throw new Error(await r.text());
+      return r.json();
+    }
+
+    async function loadMe() {
+      const me = await fetchJson("/api/me");
+      document.getElementById("meBox").innerHTML =
+        `Logged in as <b>${me.username}</b> (${me.role})`;
+      return me;
+    }
+
+    async function loadCounts() {
+      const [pending, approved, rejected] = await Promise.all([
+        fetchJson("/api/tasks?status=PENDING"),
+        fetchJson("/api/tasks?status=APPROVED"),
+        fetchJson("/api/tasks?status=REJECTED")
+      ]);
+
+      document.getElementById("pendingCount").textContent = pending.length;
+      document.getElementById("approvedCount").textContent = approved.length;
+      document.getElementById("rejectedCount").textContent = rejected.length;
+    }
+
+    async function refreshAll() {
+      await loadMe();
+      await loadCounts();
+    }
+
+    document.getElementById("refreshBtn").addEventListener("click", async () => {
+      try {
+        await refreshAll();
+      } catch (e) {
+        alert("Refresh failed: " + e.message);
+      }
+    });
+
+    (async function init() {
+      try {
+        await refreshAll();
+      } catch (e) {
+        document.body.innerHTML =
+          `<h2>Please <a href="/login.html">login</a></h2>`;
+      }
+    })();
+</script>
+
+</body>
+</html>
