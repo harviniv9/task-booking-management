@@ -5,128 +5,572 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Tasks</title>
     <style>
-        body { font-family: system-ui, Arial; margin: 24px; }
+        :root{
+          --bg1:#0ea5e9;   /* sky */
+          --bg2:#6366f1;   /* indigo */
+          --card:#ffffffcc;
+          --cardBorder:#ffffff55;
+          --text:#0f172a;  /* slate-900 */
+          --muted:#475569; /* slate-600 */
+          --shadow: 0 18px 55px rgba(2, 6, 23, .20);
+          --radius: 18px;
+          --ring:#60a5fa;
 
-        .topbar {
+          --ok:#10b981;
+          --warn:#f59e0b;
+          --bad:#ef4444;
+
+          --line: rgba(15,23,42,.10);
+          --line2: rgba(255,255,255,.22);
+        }
+
+        *{ box-sizing:border-box; }
+        html,body{ height:100%; }
+        body{
+          margin:0;
+          font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple Color Emoji","Segoe UI Emoji";
+          color:var(--text);
+          padding: 26px;
+
+          background:
+            radial-gradient(1200px 650px at 12% 10%, rgba(255,255,255,.35), transparent 60%),
+            radial-gradient(1000px 520px at 90% 18%, rgba(255,255,255,.22), transparent 55%),
+            linear-gradient(135deg, var(--bg1), var(--bg2));
+        }
+
+        .container{
+          max-width: 1180px;
+          margin: 0 auto;
+        }
+
+        /* ---------- Top Bar ---------- */
+        .topbar{
           display:flex;
           align-items:center;
           gap:12px;
           flex-wrap: wrap;
           margin-bottom: 16px;
         }
-        .spacer { flex: 1; }
 
-        .btnLink {
-          display:inline-block;
-          padding: 8px 12px;
-          border: 1px solid #ddd;
-          border-radius: 8px;
-          background: #fff;
-          text-decoration:none;
-          color:#0066cc;
-        }
-        .btnLink:hover { background:#f6f6f6; }
-
-        .logoutBtn, .applyBtn {
-          padding: 8px 12px;
-          border: 1px solid #ddd;
-          border-radius: 8px;
-          background:#fff;
-          cursor:pointer;
-        }
-        .logoutBtn:hover, .applyBtn:hover { background:#f6f6f6; }
-
-        .controls {
-          display: flex;
-          gap: 12px;
-          align-items: end;
-          flex-wrap: wrap;
-          margin-bottom: 16px;
-          padding: 12px;
-          border: 1px solid #eee;
-          border-radius: 12px;
-          background: #fafafa;
+        .titleBlock{
+          display:flex;
+          align-items:center;
+          gap:12px;
+          min-width: 250px;
         }
 
-        label { display:flex; flex-direction: column; gap:6px; font-size: 13px; color:#333; }
-        select {
+        .logo{
+          width:44px;
+          height:44px;
+          border-radius:16px;
+          display:grid;
+          place-items:center;
+          color:#fff;
+          font-weight:800;
+          letter-spacing:.4px;
+          background: rgba(255,255,255,.18);
+          border:1px solid rgba(255,255,255,.30);
+          backdrop-filter: blur(10px);
+          box-shadow: 0 10px 26px rgba(2,6,23,.18);
+          user-select:none;
+        }
+
+        h1{
+          margin:0;
+          font-size: 24px;
+          letter-spacing:-0.02em;
+          color:#fff;
+          line-height:1.1;
+        }
+
+        .subtitle{
+          margin:2px 0 0 0;
+          font-size: 13px;
+          color: rgba(255,255,255,.86);
+        }
+
+        .pill{
+          display:inline-flex;
+          align-items:center;
+          gap:8px;
           padding: 10px 12px;
-          border: 1px solid #ccc;
-          border-radius: 10px;
-          background: #fff;
-          min-width: 220px;
+          border-radius: 999px;
+          background: rgba(255,255,255,.18);
+          border:1px solid rgba(255,255,255,.26);
+          color:#fff;
+          backdrop-filter: blur(10px);
+          box-shadow: 0 10px 24px rgba(2,6,23,.12);
+          font-size: 13px;
+          line-height: 1;
+          white-space:nowrap;
         }
-        select:focus {
-          outline: none;
-          border-color: #0066cc;
-          box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.12);
+        .pillDot{
+          width:9px; height:9px;
+          border-radius: 999px;
+          background: rgba(16,185,129,.95);
+          box-shadow: 0 0 0 4px rgba(16,185,129,.20);
+          flex:0 0 auto;
         }
 
-        table { border-collapse: collapse; width: 100%; }
-        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
-        th { background: #f6f6f6; }
-        .badge { padding: 2px 8px; border-radius: 10px; font-size: 12px; border: 1px solid #ccc; }
-        .actions button { margin-right: 8px; padding: 6px 10px; border-radius: 8px; border: 1px solid #ddd; background:#fff; cursor:pointer; }
-        .actions button:hover { background:#f6f6f6; }
+        .spacer{ flex: 1; }
+
+        .actions{
+          display:flex;
+          gap:10px;
+          align-items:center;
+          flex-wrap: wrap;
+        }
+
+        .btn{
+          display:inline-flex;
+          align-items:center;
+          justify-content:center;
+          gap:8px;
+          padding: 10px 12px;
+          border-radius: 14px;
+          border:1px solid rgba(255,255,255,.32);
+          background: rgba(255,255,255,.16);
+          color:#fff;
+          text-decoration:none;
+          cursor:pointer;
+          backdrop-filter: blur(10px);
+          transition: transform .06s ease, filter .15s ease, background .15s ease;
+          box-shadow: 0 10px 22px rgba(2,6,23,.14);
+          font-size: 13px;
+          font-weight: 650;
+          user-select:none;
+          white-space:nowrap;
+        }
+        .btn:hover{ filter: brightness(1.05); background: rgba(255,255,255,.20); }
+        .btn:active{ transform: translateY(1px); }
+
+        .btnPrimary{
+          border-color: rgba(255,255,255,.45);
+          background: rgba(255,255,255,.22);
+        }
+
+        .btnIcon{ width:16px; height:16px; opacity:.92; }
+
+        /* ---------- Shell ---------- */
+        .shell{
+          border-radius: var(--radius);
+          background: rgba(255,255,255,.12);
+          border: 1px solid var(--line2);
+          box-shadow: var(--shadow);
+          backdrop-filter: blur(12px);
+          overflow:hidden;
+        }
+
+        .shellHeader{
+          padding: 18px 18px 0 18px;
+          display:flex;
+          align-items:flex-start;
+          gap:12px;
+          flex-wrap:wrap;
+        }
+        .shellHeader h2{
+          margin:0;
+          color:#fff;
+          font-size: 16px;
+          font-weight: 850;
+          letter-spacing:-0.01em;
+        }
+        .shellHeader p{
+          margin: 6px 0 0 0;
+          color: rgba(255,255,255,.86);
+          font-size: 13px;
+          line-height:1.4;
+          max-width: 76ch;
+        }
+
+        .divider{
+          height:1px;
+          background: rgba(255,255,255,.20);
+          margin: 16px 0;
+        }
+
+        /* ---------- Controls ---------- */
+        .controls{
+          margin: 0 18px 18px 18px;
+          border-radius: 18px;
+          background: var(--card);
+          border: 1px solid var(--cardBorder);
+          box-shadow: 0 14px 34px rgba(2,6,23,.14);
+          overflow:hidden;
+          position:relative;
+        }
+        .controls:before{
+          content:"";
+          position:absolute; inset:-1px;
+          background: radial-gradient(650px 260px at 18% 0%, rgba(255,255,255,.45), transparent 55%);
+          pointer-events:none;
+        }
+        .controlsInner{
+          position:relative;
+          padding: 14px;
+          display:flex;
+          gap: 12px;
+          align-items:end;
+          flex-wrap:wrap;
+        }
+
+        label{
+          display:flex;
+          flex-direction:column;
+          gap:6px;
+          font-size: 12px;
+          font-weight: 700;
+          color: var(--muted);
+          letter-spacing: .01em;
+          min-width: 240px;
+        }
+
+        .field{
+          position:relative;
+          width: 100%;
+        }
+
+        select{
+          width: 100%;
+          padding: 12px 42px 12px 42px;
+          border-radius: 14px;
+          border: 1px solid rgba(15,23,42,.14);
+          background: rgba(255,255,255,.85);
+          font-size: 14px;
+          line-height: 1.4;
+          outline:none;
+          transition: box-shadow .15s ease, border-color .15s ease;
+          appearance:none;
+        }
+        select:focus{
+          border-color: rgba(96,165,250,.8);
+          box-shadow: 0 0 0 4px rgba(96,165,250,.28);
+        }
+
+        .icon{
+          position:absolute;
+          left: 12px;
+          top: 50%;
+          transform: translateY(-50%);
+          width: 18px;
+          height: 18px;
+          opacity: .55;
+          pointer-events:none;
+        }
+        .chev{
+          position:absolute;
+          right: 12px;
+          top: 50%;
+          transform: translateY(-50%);
+          width: 18px;
+          height: 18px;
+          opacity: .55;
+          pointer-events:none;
+        }
+
+        .applyBtn{
+          border:0;
+          border-radius: 14px;
+          padding: 12px 14px;
+          font-weight: 800;
+          font-size: 13px;
+          cursor:pointer;
+          color:#fff;
+          background: linear-gradient(135deg, rgba(99,102,241,1), rgba(14,165,233,1));
+          box-shadow: 0 10px 24px rgba(2,6,23,.20);
+          transition: transform .06s ease, filter .15s ease, box-shadow .15s ease;
+          white-space:nowrap;
+        }
+        .applyBtn:hover{ filter: brightness(1.03); box-shadow: 0 14px 30px rgba(2,6,23,.26); }
+        .applyBtn:active{ transform: translateY(1px); }
+
+        .ghostBtn{
+          border-radius: 14px;
+          padding: 12px 14px;
+          font-weight: 800;
+          font-size: 13px;
+          cursor:pointer;
+          border: 1px solid rgba(15,23,42,.14);
+          background: rgba(255,255,255,.72);
+          color: #0f172a;
+          transition: transform .06s ease, filter .15s ease, background .15s ease;
+          white-space:nowrap;
+        }
+        .ghostBtn:hover{ filter: brightness(1.02); background: rgba(255,255,255,.86); }
+        .ghostBtn:active{ transform: translateY(1px); }
+
+        /* ---------- Table ---------- */
+        .tableWrap{
+          margin: 0 18px 18px 18px;
+          border-radius: 18px;
+          background: var(--card);
+          border: 1px solid var(--cardBorder);
+          box-shadow: 0 14px 34px rgba(2,6,23,.14);
+          overflow:hidden;
+          position:relative;
+        }
+        .tableWrap:before{
+          content:"";
+          position:absolute; inset:-1px;
+          background: radial-gradient(700px 260px at 18% 0%, rgba(255,255,255,.45), transparent 55%);
+          pointer-events:none;
+        }
+
+        .tableInner{
+          position:relative;
+          overflow:auto;
+        }
+
+        table{
+          border-collapse: separate;
+          border-spacing: 0;
+          width: 100%;
+          min-width: 980px; /* keep columns readable; container scrolls */
+        }
+
+        thead th{
+          position: sticky;
+          top: 0;
+          z-index: 1;
+          background: rgba(255,255,255,.86);
+          backdrop-filter: blur(8px);
+          border-bottom: 1px solid var(--line);
+          font-size: 12px;
+          color: var(--muted);
+          text-transform: uppercase;
+          letter-spacing: .06em;
+        }
+
+        th, td{
+          padding: 12px 12px;
+          border-bottom: 1px solid var(--line);
+          text-align: left;
+          vertical-align: top;
+          white-space: nowrap;
+        }
+
+        tbody tr:hover td{
+          background: rgba(255,255,255,.55);
+        }
+
+        tbody td:nth-child(2){ /* title */
+          max-width: 380px;
+          white-space: nowrap;
+          overflow:hidden;
+          text-overflow: ellipsis;
+          font-weight: 700;
+          color: #111827;
+        }
+
+        .badge{
+          display:inline-flex;
+          align-items:center;
+          gap:8px;
+          padding: 6px 10px;
+          border-radius: 999px;
+          font-size: 12px;
+          border: 1px solid rgba(15,23,42,.10);
+          background: rgba(255,255,255,.75);
+          color: #111827;
+          white-space:nowrap;
+          font-weight: 700;
+        }
+        .dot{
+          width:8px;
+          height:8px;
+          border-radius:999px;
+          background: var(--warn);
+          box-shadow: 0 0 0 3px rgba(245,158,11,.18);
+        }
+        .bPending .dot{ background: var(--warn); box-shadow: 0 0 0 3px rgba(245,158,11,.18); }
+        .bApproved .dot{ background: var(--ok); box-shadow: 0 0 0 3px rgba(16,185,129,.18); }
+        .bRejected .dot{ background: var(--bad); box-shadow: 0 0 0 3px rgba(239,68,68,.18); }
+
+        .actionsCell{
+          display:flex;
+          gap:8px;
+          align-items:center;
+        }
+
+        .smallBtn{
+          padding: 8px 10px;
+          border-radius: 12px;
+          border: 1px solid rgba(15,23,42,.12);
+          background: rgba(255,255,255,.78);
+          cursor:pointer;
+          font-weight: 800;
+          font-size: 12px;
+          transition: transform .06s ease, filter .15s ease, background .15s ease;
+          white-space:nowrap;
+        }
+        .smallBtn:hover{ filter: brightness(1.02); background: rgba(255,255,255,.92); }
+        .smallBtn:active{ transform: translateY(1px); }
+
+        .approveBtn{
+          border-color: rgba(16,185,129,.30);
+          background: rgba(16,185,129,.10);
+          color: #065f46;
+        }
+        .rejectBtn{
+          border-color: rgba(239,68,68,.30);
+          background: rgba(239,68,68,.10);
+          color: #7f1d1d;
+        }
+
+        /* ---------- Toast ---------- */
+        .toast{
+          display:none;
+          margin: 8px 18px 0 18px;
+          padding: 12px 14px;
+          border-radius: 14px;
+          background: rgba(255,255,255,.18);
+          border:1px solid rgba(255,255,255,.26);
+          color: #fff;
+          backdrop-filter: blur(10px);
+          font-size: 13px;
+          line-height: 1.4;
+          box-shadow: 0 10px 24px rgba(2,6,23,.12);
+        }
+        .toast.show{ display:block; }
+        .toast.err{
+          background: rgba(239,68,68,.14);
+          border-color: rgba(239,68,68,.26);
+        }
+
+        @media (prefers-reduced-motion: reduce){
+          *{ transition:none !important; }
+        }
     </style>
 </head>
 
 <body>
-<div class="topbar">
-    <h1 style="margin:0;">Tasks</h1>
-    <div id="meBox">Loading user...</div>
+<div class="container">
 
-    <div class="spacer"></div>
+    <div class="topbar">
+        <div class="titleBlock">
+            <div class="logo">TB</div>
+            <div>
+                <h1>Tasks</h1>
+                <div class="subtitle">Filter, sort, approve/reject (Managers only)</div>
+            </div>
+        </div>
 
-    <a class="btnLink" href="/dashboard.html">Dashboard</a>
-    <a class="btnLink" href="/create-task.html">Create Task</a>
+        <div class="pill" title="Current user">
+            <span class="pillDot"></span>
+            <span id="meBox">Loading user...</span>
+        </div>
 
-    <form action="/logout" method="post" style="margin:0;">
-        <button class="logoutBtn" type="submit">Logout</button>
-    </form>
+        <div class="spacer"></div>
+
+        <div class="actions">
+            <a class="btn" href="/dashboard.html">
+                <svg class="btnIcon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M4 11l8-7 8 7v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-9Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+                    <path d="M9.5 22v-7h5v7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                </svg>
+                Dashboard
+            </a>
+
+            <a class="btn btnPrimary" href="/create-task.html">
+                <svg class="btnIcon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                </svg>
+                Create Task
+            </a>
+
+            <form action="/logout" method="post" style="margin:0;">
+                <button class="btn" type="submit" title="Logout">
+                    <svg class="btnIcon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                        <path d="M10 7V6a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-7a2 2 0 0 1-2-2v-1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                        <path d="M3 12h11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                        <path d="M7 8l-4 4 4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Logout
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+    <section class="shell">
+        <div class="shellHeader">
+            <div>
+                <h2>Browse Tasks</h2>
+                <p>Use the controls to filter by status and sort by task date/time. Export the current view to CSV.</p>
+            </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- Controls -->
+        <div class="controls">
+            <div class="controlsInner">
+                <label>
+                    Filter by Status
+                    <div class="field">
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                            <path d="M4 5h16l-6 7v6l-4 1v-7L4 5Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+                        </svg>
+                        <select id="statusFilter">
+                            <option value="">All</option>
+                            <option value="PENDING">Pending</option>
+                            <option value="APPROVED">Approved</option>
+                            <option value="REJECTED">Rejected</option>
+                        </select>
+                        <svg class="chev" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                            <path d="M7 10l5 5 5-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                </label>
+
+                <label>
+                    Task Date/Time Sort
+                    <div class="field">
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                            <path d="M7 3v3M17 3v3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                            <path d="M4.5 8.5h15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                            <path d="M6.5 5.5h11A2 2 0 0 1 19.5 7.5v12A2 2 0 0 1 17.5 21.5h-11A2 2 0 0 1 4.5 19.5v-12A2 2 0 0 1 6.5 5.5Z" stroke="currentColor" stroke-width="1.8"/>
+                        </svg>
+                        <select id="dateSortDir">
+                            <option value="asc">Oldest → Newest</option>
+                            <option value="desc">Newest → Oldest</option>
+                        </select>
+                        <svg class="chev" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                            <path d="M7 10l5 5 5-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                </label>
+
+                <button class="applyBtn" id="applyBtn" type="button">Apply</button>
+                <button class="ghostBtn" type="button" id="exportCsvBtn">Export CSV</button>
+            </div>
+        </div>
+
+        <!-- Table -->
+        <div class="tableWrap">
+            <div class="tableInner">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Title</th>
+                        <th>Status</th>
+                        <th>Priority</th>
+                        <th>Task Date/Time</th>
+                        <th>Assigned</th>
+                        <th>Created By</th>
+                        <th>Decision</th>
+                        <th>Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody id="tasksTbody"></tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
 </div>
-
-<!-- Required features: Status filter + Task Date/Time sort -->
-<div class="controls">
-    <label>
-        Filter by Status
-        <select id="statusFilter">
-            <option value="">All</option>
-            <option value="PENDING">Pending</option>
-            <option value="APPROVED">Approved</option>
-            <option value="REJECTED">Rejected</option>
-        </select>
-    </label>
-
-    <label>
-        Task Date/Time Sort
-        <select id="dateSortDir">
-            <option value="asc">Oldest → Newest</option>
-            <option value="desc">Newest → Oldest</option>
-        </select>
-    </label>
-
-    <button class="applyBtn" id="applyBtn" type="button">Apply</button>
-    <button class="applyBtn" type="button" id="exportCsvBtn">Export CSV</button>
-
-</div>
-
-<table>
-    <thead>
-    <tr>
-        <th>ID</th>
-        <th>Title</th>
-        <th>Status</th>
-        <th>Priority</th>
-        <th>Task Date/Time</th>
-        <th>Assigned</th>
-        <th>Created By</th>
-        <th>Decision</th>
-        <th>Actions</th>
-    </tr>
-    </thead>
-    <tbody id="tasksTbody"></tbody>
-</table>
 
 <script>
     let me = null;
@@ -140,8 +584,25 @@
       return res.json();
     }
 
-    function badge(text) {
-      return `<span class="badge">${text ?? ""}</span>`;
+    function showToast(text, isErr = false) {
+      const t = document.getElementById("toast");
+      t.textContent = text;
+      t.className = "toast show" + (isErr ? " err" : "");
+      clearTimeout(showToast._timer);
+      showToast._timer = setTimeout(() => t.classList.remove("show"), 3200);
+    }
+
+    function badgeStatus(status) {
+      const cls =
+        status === "APPROVED" ? "bApproved" :
+        status === "REJECTED" ? "bRejected" :
+        "bPending";
+
+      return `<span class="badge ${cls}"><span class="dot"></span>${status ?? ""}</span>`;
+    }
+
+    function badgeSimple(text) {
+      return `<span class="badge"><span class="dot" style="opacity:.0;box-shadow:none;background:transparent"></span>${text ?? ""}</span>`;
     }
 
     function applyQueryParamsToControls() {
@@ -174,7 +635,7 @@
     async function loadMe() {
       me = await fetchJson("/api/me");
       document.getElementById("meBox").innerHTML =
-        `Logged in as <b>${me.username}</b> (${me.role})`;
+        `Logged in as <b>${me.username}</b> · ${me.role}`;
     }
 
     async function loadTasks() {
@@ -184,30 +645,39 @@
       const tbody = document.getElementById("tasksTbody");
       tbody.innerHTML = "";
 
+      if (!tasks.length) {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `<td colspan="9" style="padding:18px;color:var(--muted);white-space:normal;">
+          No tasks found for the selected filters.
+        </td>`;
+        tbody.appendChild(tr);
+        return;
+      }
+
       tasks.forEach(t => {
         const canDecide = me && (me.role === "MANAGER") && t.status === "PENDING";
 
         const decisionInfo = t.decisionByUsername
-          ? `${t.decisionByUsername} @ ${t.decisionAt}`
+          ? `${t.decisionByUsername} @ ${t.decisionAt ?? ""}`
           : "";
 
         const actionsHtml = canDecide
-          ? `<div class="actions">
-               <button onclick="decide(${t.id}, 'APPROVE')">Approve</button>
-               <button onclick="decide(${t.id}, 'REJECT')">Reject</button>
+          ? `<div class="actionsCell">
+               <button class="smallBtn approveBtn" onclick="decide(${t.id}, 'APPROVE')">Approve</button>
+               <button class="smallBtn rejectBtn" onclick="decide(${t.id}, 'REJECT')">Reject</button>
              </div>`
           : "";
 
         const tr = document.createElement("tr");
         tr.innerHTML = `
           <td>${t.id}</td>
-          <td>${t.title}</td>
-          <td>${badge(t.status)}</td>
-          <td>${badge(t.priority)}</td>
+          <td title="${(t.title ?? "").replaceAll('"', '&quot;')}">${t.title ?? ""}</td>
+          <td>${badgeStatus(t.status)}</td>
+          <td>${badgeSimple(t.priority)}</td>
           <td>${t.taskDateTime ?? ""}</td>
           <td>${t.assignedUsername ?? ""}</td>
           <td>${t.createdByUsername ?? ""}</td>
-          <td>${decisionInfo}</td>
+          <td style="white-space:normal; max-width:220px;">${decisionInfo}</td>
           <td>${actionsHtml}</td>
         `;
         tbody.appendChild(tr);
@@ -221,8 +691,10 @@
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ decision })
         });
+        showToast(decision === "APPROVE" ? "Task approved." : "Task rejected.");
         await loadTasks();
       } catch (e) {
+        showToast("Decision failed: " + e.message, true);
         alert("Decision failed: " + e.message);
       }
     }
@@ -231,8 +703,7 @@
 
     document.getElementById("applyBtn").addEventListener("click", loadTasks);
 
-
-    // nice UX: auto apply
+    // Nice UX: auto apply
     document.getElementById("statusFilter").addEventListener("change", loadTasks);
     document.getElementById("dateSortDir").addEventListener("change", loadTasks);
 
@@ -248,22 +719,22 @@
       window.location.href = "/api/tasks/export?" + params.toString();
     });
 
-
     (async function init() {
       try {
         applyQueryParamsToControls();
-        await loadMe();
-        await loadMe();
+        await loadMe();   // (you had loadMe twice earlier)
         await loadTasks();
       } catch (e) {
         document.body.innerHTML = `
-          <h2>You are not logged in</h2>
-          <p>Please <a href="/login.html">login</a> and refresh.</p>
-          <pre>${e.message}</pre>
+          <div style="max-width:680px;margin:80px auto;color:#fff;font-family:system-ui">
+            <h2 style="margin:0 0 10px 0;">Session expired</h2>
+            <p style="margin:0 0 16px 0;opacity:.9;">Please sign in again to continue.</p>
+            <a href="/login.html" style="display:inline-block;padding:10px 12px;border-radius:12px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.28);color:#fff;text-decoration:none;">Go to Login</a>
+            <pre style="margin-top:14px;white-space:pre-wrap;opacity:.85;">${e.message}</pre>
+          </div>
         `;
       }
     })();
 </script>
 </body>
 </html>
-<!doctype html>

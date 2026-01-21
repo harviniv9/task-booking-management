@@ -5,118 +5,480 @@
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <title>Dashboard</title>
     <style>
-        body { font-family: system-ui, Arial; margin: 24px; }
+        :root{
+          --bg1:#0ea5e9;   /* sky */
+          --bg2:#6366f1;   /* indigo */
+          --card:#ffffffcc;
+          --cardBorder:#ffffff55;
+          --text:#0f172a;  /* slate-900 */
+          --muted:#475569; /* slate-600 */
+          --shadow: 0 18px 55px rgba(2, 6, 23, .20);
+          --radius: 18px;
+          --ring:#60a5fa;
 
-        .header {
+          --ok:#10b981;
+          --warn:#f59e0b;
+          --bad:#ef4444;
+        }
+
+        *{ box-sizing:border-box; }
+        html,body{ height:100%; }
+        body{
+          margin:0;
+          font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple Color Emoji","Segoe UI Emoji";
+          color:var(--text);
+          padding: 26px;
+
+          background:
+            radial-gradient(1200px 650px at 10% 10%, rgba(255,255,255,.35), transparent 60%),
+            radial-gradient(1000px 520px at 90% 18%, rgba(255,255,255,.22), transparent 55%),
+            linear-gradient(135deg, var(--bg1), var(--bg2));
+        }
+
+        .container{
+          max-width: 1120px;
+          margin: 0 auto;
+        }
+
+        /* Top bar */
+        .topbar{
+          display:flex;
+          gap:16px;
+          align-items:center;
+          flex-wrap:wrap;
+          margin-bottom: 18px;
+        }
+
+        .titleBlock{
           display:flex;
           align-items:center;
           gap:12px;
-          flex-wrap: wrap;
-          margin-bottom: 16px;
+          min-width: 240px;
         }
-
-        .meBox { color:#333; }
-        .spacer { flex: 1; }
-
-        .btnLink {
-          display:inline-block;
-          padding: 8px 12px;
-          border: 1px solid #ddd;
-          border-radius: 8px;
-          background: #fff;
-          text-decoration:none;
-          color:#0066cc;
-        }
-        .btnLink:hover { background:#f6f6f6; }
-
-        .logoutBtn {
-          padding: 8px 12px;
-          border: 1px solid #ddd;
-          border-radius: 8px;
-          background: #fff;
-          cursor:pointer;
-        }
-        .logoutBtn:hover { background:#f6f6f6; }
-
-        .cards {
+        .logo{
+          width:44px;
+          height:44px;
+          border-radius:16px;
           display:grid;
-          grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-          gap:16px;
-          margin-top:16px;
+          place-items:center;
+          color:#fff;
+          font-weight:800;
+          letter-spacing:.4px;
+          background: rgba(255,255,255,.18);
+          border:1px solid rgba(255,255,255,.30);
+          backdrop-filter: blur(10px);
+          box-shadow: 0 10px 26px rgba(2,6,23,.18);
+        }
+        h1{
+          margin:0;
+          font-size: 24px;
+          letter-spacing:-0.02em;
+          color:#fff;
+          line-height:1.1;
+        }
+        .subtitle{
+          margin:2px 0 0 0;
+          font-size: 13px;
+          color: rgba(255,255,255,.86);
         }
 
-        .card {
-          border: 1px solid #ddd;
-          border-radius: 12px;
-          padding: 16px;
-          background: #fafafa;
+        .pill{
+          margin-left: 6px;
+          display:inline-flex;
+          align-items:center;
+          gap:8px;
+          padding: 10px 12px;
+          border-radius: 999px;
+          background: rgba(255,255,255,.18);
+          border:1px solid rgba(255,255,255,.26);
+          color:#fff;
+          backdrop-filter: blur(10px);
+          box-shadow: 0 10px 24px rgba(2,6,23,.12);
+          font-size: 13px;
+          line-height: 1;
+        }
+        .pillDot{
+          width:9px;
+          height:9px;
+          border-radius: 999px;
+          background: rgba(16,185,129,.95);
+          box-shadow: 0 0 0 4px rgba(16,185,129,.20);
+          flex:0 0 auto;
         }
 
-        .card a {
-          text-decoration: none;
-          color: inherit;
-          display:block;
+        .spacer{ flex: 1; }
+
+        .actions{
+          display:flex;
+          gap:10px;
+          align-items:center;
+          flex-wrap: wrap;
         }
 
-        .cardTitle { color:#444; margin-bottom: 10px; }
-        .count { font-size: 36px; font-weight: 700; line-height: 1; margin-bottom: 8px; }
-        .sub { font-size: 12px; color:#666; }
-
-        .toolbar { display:flex; gap:12px; align-items:center; margin-top: 8px; }
-        .refreshBtn {
-          padding: 8px 12px;
-          border: 1px solid #ddd;
-          border-radius: 8px;
-          background:#fff;
+        .btn{
+          display:inline-flex;
+          align-items:center;
+          justify-content:center;
+          gap:8px;
+          padding: 10px 12px;
+          border-radius: 14px;
+          border:1px solid rgba(255,255,255,.32);
+          background: rgba(255,255,255,.16);
+          color:#fff;
+          text-decoration:none;
           cursor:pointer;
+          backdrop-filter: blur(10px);
+          transition: transform .06s ease, filter .15s ease, background .15s ease;
+          box-shadow: 0 10px 22px rgba(2,6,23,.14);
+          font-size: 13px;
+          font-weight: 650;
+          user-select:none;
         }
-        .refreshBtn:hover { background:#f6f6f6; }
+        .btn:hover{ filter: brightness(1.05); background: rgba(255,255,255,.20); }
+        .btn:active{ transform: translateY(1px); }
+
+        .btnPrimary{
+          border-color: rgba(255,255,255,.45);
+          background: rgba(255,255,255,.22);
+        }
+
+        .btnIcon{
+          width: 16px;
+          height: 16px;
+          opacity: .92;
+        }
+
+        .logoutForm{ margin:0; }
+
+        /* Content shell */
+        .shell{
+          border-radius: var(--radius);
+          background: rgba(255,255,255,.12);
+          border: 1px solid rgba(255,255,255,.22);
+          box-shadow: var(--shadow);
+          backdrop-filter: blur(12px);
+          overflow:hidden;
+        }
+
+        .shellHeader{
+          padding: 18px 18px 0 18px;
+          display:flex;
+          align-items:flex-start;
+          gap:12px;
+          flex-wrap:wrap;
+        }
+
+        .shellHeader h2{
+          margin:0;
+          color:#fff;
+          font-size: 16px;
+          font-weight: 750;
+          letter-spacing:-0.01em;
+        }
+        .shellHeader p{
+          margin: 6px 0 0 0;
+          color: rgba(255,255,255,.86);
+          font-size: 13px;
+          line-height:1.4;
+          max-width: 62ch;
+        }
+
+        .divider{
+          height:1px;
+          background: rgba(255,255,255,.20);
+          margin: 16px 0;
+        }
+
+        /* Cards grid */
+        .cards{
+          padding: 0 18px 18px 18px;
+          display:grid;
+          grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+          gap: 14px;
+        }
+
+        .card{
+          position:relative;
+          border-radius: 18px;
+          background: var(--card);
+          border:1px solid var(--cardBorder);
+          box-shadow: 0 14px 34px rgba(2,6,23,.14);
+          overflow:hidden;
+          transition: transform .10s ease, box-shadow .15s ease, filter .15s ease;
+        }
+        .card:hover{
+          transform: translateY(-2px);
+          box-shadow: 0 18px 44px rgba(2,6,23,.18);
+          filter: brightness(1.02);
+        }
+        .card a{
+          display:block;
+          padding: 16px 16px 14px 16px;
+          text-decoration:none;
+          color: inherit;
+        }
+
+        .cardTop{
+          display:flex;
+          align-items:center;
+          justify-content:space-between;
+          gap:10px;
+          margin-bottom: 10px;
+        }
+
+        .cardTitle{
+          margin:0;
+          font-size: 14px;
+          font-weight: 750;
+          letter-spacing:-0.01em;
+          color: #111827;
+        }
+
+        .badge{
+          display:inline-flex;
+          align-items:center;
+          gap:8px;
+          padding: 6px 10px;
+          border-radius: 999px;
+          font-size: 12px;
+          border: 1px solid rgba(15,23,42,.10);
+          background: rgba(255,255,255,.75);
+          color: #111827;
+          white-space:nowrap;
+        }
+        .badgeDot{
+          width:8px; height:8px; border-radius:999px;
+          background: var(--warn);
+          box-shadow: 0 0 0 3px rgba(245,158,11,.18);
+        }
+
+        .countRow{
+          display:flex;
+          align-items:baseline;
+          justify-content:space-between;
+          gap:10px;
+          margin-top: 6px;
+        }
+        .count{
+          font-size: 42px;
+          font-weight: 850;
+          letter-spacing:-0.03em;
+          line-height: 1;
+        }
+
+        .sub{
+          margin-top: 8px;
+          font-size: 12px;
+          color: var(--muted);
+          line-height:1.35;
+        }
+
+        .miniLink{
+          margin-top: 10px;
+          display:inline-flex;
+          align-items:center;
+          gap:8px;
+          font-size: 12px;
+          color: rgba(79,70,229,.95);
+          font-weight: 650;
+        }
+        .arrow{
+          width:14px;
+          height:14px;
+          opacity:.85;
+        }
+
+        /* Color accents per status */
+        .card.pending .badgeDot{ background: var(--warn); box-shadow: 0 0 0 3px rgba(245,158,11,.18); }
+        .card.approved .badgeDot{ background: var(--ok); box-shadow: 0 0 0 3px rgba(16,185,129,.18); }
+        .card.rejected .badgeDot{ background: var(--bad); box-shadow: 0 0 0 3px rgba(239,68,68,.18); }
+
+        .card.pending:before,
+        .card.approved:before,
+        .card.rejected:before{
+          content:"";
+          position:absolute;
+          inset:0;
+          background: radial-gradient(600px 220px at 20% 0%, rgba(255,255,255,.45), transparent 55%);
+          pointer-events:none;
+        }
+        .card.pending:after,
+        .card.approved:after,
+        .card.rejected:after{
+          content:"";
+          position:absolute;
+          inset:0;
+          background: radial-gradient(280px 120px at 90% 20%, rgba(14,165,233,.22), transparent 55%);
+          pointer-events:none;
+        }
+
+        /* Toast-ish error */
+        .toast{
+          display:none;
+          margin-top: 14px;
+          padding: 12px 14px;
+          border-radius: 14px;
+          background: rgba(239,68,68,.12);
+          border:1px solid rgba(239,68,68,.28);
+          color: #7f1d1d;
+          font-size: 13px;
+        }
+        .toast.show{ display:block; }
+
+        @media (prefers-reduced-motion: reduce){
+          *{ transition:none !important; }
+        }
     </style>
 </head>
 
 <body>
+<div class="container">
 
-<div class="header">
-    <h1 style="margin:0;">Dashboard</h1>
-    <div id="meBox" class="meBox">Loading user...</div>
+    <div class="topbar">
+        <div class="titleBlock">
+            <div class="logo">TB</div>
+            <div>
+                <h1>Dashboard</h1>
+                <div class="subtitle">Track your tasks & approvals in one place</div>
+            </div>
+        </div>
 
-    <div class="spacer"></div>
-    <a class="btnLink" href="/calendar.html">Calendar</a>
+        <div id="mePill" class="pill" title="Current user">
+            <span class="pillDot"></span>
+            <span id="meBox">Loading user...</span>
+        </div>
 
-    <a class="btnLink" href="/tasks.html">View Tasks</a>
-    <a class="btnLink" href="/create-task.html">Create Task</a>
+        <div class="spacer"></div>
 
-    <button class="refreshBtn" id="refreshBtn" type="button">Refresh</button>
+        <div class="actions">
+            <a class="btn" href="/calendar.html">
+                <svg class="btnIcon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M7 3v3M17 3v3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                    <path d="M4.5 8.5h15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                    <path d="M6.5 5.5h11A2 2 0 0 1 19.5 7.5v12A2 2 0 0 1 17.5 21.5h-11A2 2 0 0 1 4.5 19.5v-12A2 2 0 0 1 6.5 5.5Z" stroke="currentColor" stroke-width="1.8"/>
+                </svg>
+                Calendar
+            </a>
 
-    <form action="/logout" method="post" style="margin:0;">
-        <button class="logoutBtn" type="submit">Logout</button>
-    </form>
-</div>
+            <a class="btn" href="/tasks.html">
+                <svg class="btnIcon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M8 6h12M8 12h12M8 18h12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                    <path d="M4 6h.01M4 12h.01M4 18h.01" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+                </svg>
+                View Tasks
+            </a>
 
-<div class="cards">
-    <div class="card">
-        <a href="/tasks.html?status=PENDING">
-            <div class="cardTitle">Pending Tasks</div>
-            <div class="count" id="pendingCount">–</div>
-            <div class="sub">Needs action / approval</div>
-        </a>
+            <a class="btn btnPrimary" href="/create-task.html">
+                <svg class="btnIcon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                </svg>
+                Create Task
+            </a>
+
+            <button class="btn" id="refreshBtn" type="button">
+                <svg class="btnIcon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M20 12a8 8 0 1 1-2.34-5.66" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                    <path d="M20 4v6h-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                </svg>
+                Refresh
+            </button>
+
+            <form class="logoutForm" action="/logout" method="post">
+                <button class="btn" type="submit" title="Logout">
+                    <svg class="btnIcon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                        <path d="M10 7V6a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-7a2 2 0 0 1-2-2v-1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                        <path d="M3 12h11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                        <path d="M7 8l-4 4 4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Logout
+                </button>
+            </form>
+        </div>
     </div>
 
-    <div class="card">
-        <a href="/tasks.html?status=APPROVED">
-            <div class="cardTitle">Approved Tasks</div>
-            <div class="count" id="approvedCount">–</div>
-            <div class="sub">Approved and in progress</div>
-        </a>
-    </div>
+    <section class="shell">
+        <div class="shellHeader">
+            <div>
+                <h2>Overview</h2>
+                <p>Quick snapshot of tasks by status. Click any card to open the filtered list.</p>
+                <div id="toast" class="toast"></div>
+            </div>
+        </div>
 
-    <div class="card">
-        <a href="/tasks.html?status=REJECTED">
-            <div class="cardTitle">Rejected Tasks</div>
-            <div class="count" id="rejectedCount">–</div>
-            <div class="sub">Rejected tasks</div>
-        </a>
-    </div>
+        <div class="divider"></div>
+
+        <div class="cards">
+            <div class="card pending">
+                <a href="/tasks.html?status=PENDING">
+                    <div class="cardTop">
+                        <div class="cardTitle">Pending Tasks</div>
+                        <div class="badge"><span class="badgeDot"></span>Needs action</div>
+                    </div>
+
+                    <div class="countRow">
+                        <div class="count" id="pendingCount">–</div>
+                    </div>
+
+                    <div class="sub">Awaiting approval or review.</div>
+
+                    <div class="miniLink">
+                        View pending
+                        <svg class="arrow" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                            <path d="M7 17l10-10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                            <path d="M10 7h7v7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                </a>
+            </div>
+
+            <div class="card approved">
+                <a href="/tasks.html?status=APPROVED">
+                    <div class="cardTop">
+                        <div class="cardTitle">Approved Tasks</div>
+                        <div class="badge"><span class="badgeDot"></span>Approved</div>
+                    </div>
+
+                    <div class="countRow">
+                        <div class="count" id="approvedCount">–</div>
+                    </div>
+
+                    <div class="sub">Approved and in progress.</div>
+
+                    <div class="miniLink">
+                        View approved
+                        <svg class="arrow" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                            <path d="M7 17l10-10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                            <path d="M10 7h7v7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                </a>
+            </div>
+
+            <div class="card rejected">
+                <a href="/tasks.html?status=REJECTED">
+                    <div class="cardTop">
+                        <div class="cardTitle">Rejected Tasks</div>
+                        <div class="badge"><span class="badgeDot"></span>Rejected</div>
+                    </div>
+
+                    <div class="countRow">
+                        <div class="count" id="rejectedCount">–</div>
+                    </div>
+
+                    <div class="sub">Rejected items and reasons.</div>
+
+                    <div class="miniLink">
+                        View rejected
+                        <svg class="arrow" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                            <path d="M7 17l10-10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                            <path d="M10 7h7v7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </section>
+
 </div>
 
 <script>
@@ -129,7 +491,7 @@
     async function loadMe() {
       const me = await fetchJson("/api/me");
       document.getElementById("meBox").innerHTML =
-        `Logged in as <b>${me.username}</b> (${me.role})`;
+        `Logged in as <b>${me.username}</b> · ${me.role}`;
       return me;
     }
 
@@ -145,16 +507,30 @@
       document.getElementById("rejectedCount").textContent = rejected.length;
     }
 
+    function showToast(text) {
+      const t = document.getElementById("toast");
+      t.textContent = text;
+      t.classList.add("show");
+      setTimeout(() => t.classList.remove("show"), 3500);
+    }
+
     async function refreshAll() {
       await loadMe();
       await loadCounts();
     }
 
     document.getElementById("refreshBtn").addEventListener("click", async () => {
+      const btn = document.getElementById("refreshBtn");
+      btn.disabled = true;
+      btn.style.opacity = ".75";
       try {
         await refreshAll();
+        showToast("Updated successfully.");
       } catch (e) {
         alert("Refresh failed: " + e.message);
+      } finally {
+        btn.disabled = false;
+        btn.style.opacity = "1";
       }
     });
 
@@ -163,7 +539,11 @@
         await refreshAll();
       } catch (e) {
         document.body.innerHTML =
-          `<h2>Please <a href="/login.html">login</a></h2>`;
+          `<div style="max-width:680px;margin:80px auto;color:#fff;font-family:system-ui">
+            <h2 style="margin:0 0 10px 0;">Session expired</h2>
+            <p style="margin:0 0 16px 0;opacity:.9;">Please sign in again to continue.</p>
+            <a href="/login.html" style="display:inline-block;padding:10px 12px;border-radius:12px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.28);color:#fff;text-decoration:none;">Go to Login</a>
+          </div>`;
       }
     })();
 </script>
